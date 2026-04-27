@@ -1,33 +1,48 @@
-import sqlite3
-from typing import List, Dict, Any, Optional
+class CNPSGenerator:
+    def __init__(self):
+        self.connection = None
 
-class DatabaseManager:
-    def __init__(self, db_path: str):
-        self.db_path = db_path
-        self.conn: Optional[sqlite3.Connection] = None
+    def connect_to_db(self, dsn, user, password):
+        # Simulation de connexion ODBC (pas de vraie base de données)
+        # En réalité, utiliser pyodbc ou similaire
+        # self.connection = pyodbc.connect(f'DSN={dsn};UID={user};PWD={password}')
+        print("Connexion simulée à la base de données.")
+        self.connection = "simulated_connection"
 
-    def connect(self) -> sqlite3.Connection:
+    def generate_declaration_file(self, employees_data, output_file_path):
         """
-        Établit une connexion à la base de données SQLite et configure
-        la lecture des résultats sous forme de dictionnaire.
-        """
-        if self.conn is None:
-            self.conn = sqlite3.connect(self.db_path)
-            self.conn.row_factory = sqlite3.Row
-        return self.conn
+        Génère le fichier de déclaration mensuelle CNPS (DIPE magnétique).
 
-    def read_monthly_declarations(
-        self,
-        table_name: str = "declarations_mensuelles",
-        columns: Optional[List[str]] = None
-    ) -> List[Dict[str, Any]]:
+        :param employees_data: Liste de dictionnaires avec les données des employés
+        :param output_file_path: Chemin du fichier de sortie
         """
-        Lit les données des déclarations mensuelles depuis la table indiquée.
-        """
-        conn = self.connect()
-        cursor = conn.cursor()
-        cols = ", ".join(columns) if columns else "*"
-        query = f"SELECT {cols} FROM {table_name}"
-        cursor.execute(query)
-        rows = cursor.fetchall()
-        return [dict(row) for row in rows]
+        with open(output_file_path, 'w', encoding='utf-8') as file:
+            # En-tête du fichier (exemple basé sur spécifications supposées)
+            header = "DIPE001" + " " * 10 + "CNPS_DECLARATION" + "\n"
+            file.write(header)
+
+            for employee in employees_data:
+                # Format supposé : ID_EMPLOYE NOM PRENOM SALAIRE DATE
+                # Ajuster selon les vraies spécifications CNPS
+                line = f"{employee['id']:010d}{employee['nom']:20}{employee['prenom']:20}{employee['salaire']:010.2f}{employee['date']:10}\n"
+                file.write(line)
+
+            # Pied de page
+            footer = "FIN_DECLARATION" + "\n"
+            file.write(footer)
+
+        print(f"Fichier généré : {output_file_path}")
+
+# Exemple d'utilisation
+if __name__ == "__main__":
+    generator = CNPSGenerator()
+    generator.connect_to_db("DSN_EXAMPLE", "user", "password")
+
+    # Données simulées des employés
+    employees = [
+        {"id": 1, "nom": "Dupont", "prenom": "Jean", "salaire": 1500.00, "date": "2026-10-27"},
+        {"id": 2, "nom": "Martin", "prenom": "Marie", "salaire": 1600.00, "date": "2026-10-27"},
+    ]
+
+
+    generator.generate_declaration_file(employees, "declaration_cnps.txt")
