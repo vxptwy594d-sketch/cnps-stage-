@@ -1,0 +1,4 @@
+DIPE001          CNPS_DECLARATION
+0000000001Dupont              Jean                0001500.002026-10-27
+0000000002Martin              Marie               0001600.002026-10-27
+FIN_DECLARATION
