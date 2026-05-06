@@ -2,46 +2,71 @@
 
 
 class DeclarationCNPS:
-    def __init__(self, server, database, username, password):
-        self.server = server
-        self.database = database
-        self.username = username
-        self.password = password
+    def __init__(self):
+        self.employees = []
     
-    def connecter(self):
-        ...
-    
-
-    def lecture_des_donnees(self):
-        ...
-    
-    def creation_du_fichier_de_declaration(self):
-        ...
-
-declaration_cnps.lecture_des_donnees()
-
-# declaration_cnps.creation_du_fichier_de_declaration()
-class DeclarationsCNPS:
-
-    # Module 1 : lecture simple
+    # Module 1 : Lecture des données
     def lire_donnees(self):
-        return [
-            {"matricule": "EMP001", "brut": 450000},
-            {"matricule": "EMP002", "brut": 300000}
+        """
+        Lit les données des employés nécessaires à la déclaration CNPS
+        Retourne une liste de dictionnaires avec les informations des employés
+        """
+        donnees = [
+            {
+                "numero": "0000000001",
+                "nom": "Dupont",
+                "prenom": "Jean",
+                "salaire": "0001500.00",
+                "date": "2026-10-27"
+            },
+            {
+                "numero": "0000000002",
+                "nom": "Martin",
+                "prenom": "Marie",
+                "salaire": "0001600.00",
+                "date": "2026-10-27"
+            }
         ]
-
-
-    # Module 2 : génération du fichier
-    def generer_fichier(self, chemin):
-        donnees = self.lire_donnees()
-
-        with open(chemin, "w") as f:
-            for d in donnees:
-                ligne = d["matricule"] + " " + str(d["brut"])
-                f.write(ligne + "\n")
-
-
-# utilisation
-cnps = DeclarationsCNPS()
-cnps.generer_fichier("fichier.txt")
-print("Fichier créé")
+        
+        # Validation des données
+        for emp in donnees:
+            if not emp.get("numero"):
+                raise ValueError("Numéro CNPS manquant")
+            if emp.get("salaire", 0) <= 0:
+                raise ValueError("Salaire invalide")
+        
+        self.employees = donnees
+        return donnees
+    
+    # Module 2 : Génération du fichier de déclaration
+    def generer_fichier(self, chemin_fichier="declaration_cnps.txt"):
+        """
+        Génère le fichier texte de déclaration mensuelle CNPS
+        
+        :param chemin_fichier: chemin du fichier à créer
+        """
+        if not self.employees:
+            raise ValueError("Aucune donnée d'employé. Appelez d'abord lire_donnees()")
+        
+        try:
+            with open(chemin_fichier, "w", encoding="utf-8") as f:
+                # En-tête du fichier
+                f.write("DIPE001          CNPS_DECLARATION\n")
+                
+                # Données des employés
+                for emp in self.employees:
+                    ligne = (
+                        f"{emp['numero']}"
+                        f"{emp['nom']:<20}"
+                        f"{emp['prenom']:<20}"
+                        f"{emp['salaire']}{emp['date']}\n"
+                    )
+                    f.write(ligne)
+                
+                # Fin de fichier
+                f.write("FIN_DECLARATION\n")
+            
+            print(f"✅ Fichier créé avec succès : {chemin_fichier}")
+            return True
+        except IOError as e:
+            raise IOError(f"Erreur lors de la création du fichier : {str(e)}")
