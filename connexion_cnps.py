@@ -12,7 +12,7 @@ class DeclarationCNPS:
         ...
     
 
-    def leecture_des_donnees(self):
+    def lecture_des_donnees(self):
         ...
     
     def creation_du_fichier_de_declaration(self):
