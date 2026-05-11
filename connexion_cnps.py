@@ -1,6 +1,9 @@
 
 
 
+from platform import java_ver
+
+
 class DeclarationCNPS:
     def __init__(self):
         self.employees = []
@@ -14,15 +17,15 @@ class DeclarationCNPS:
         donnees = [
             {
                 "numero": "0000000001",
-                "nom": "Dupont",
-                "prenom": "Jean",
+                "nom": "haniel",
+                "prenom": "tchapmeni",
                 "salaire": "0001500.00",
                 "date": "2026-10-27"
             },
             {
                 "numero": "0000000002",
-                "nom": "Martin",
-                "prenom": "Marie",
+                "nom": "leonel",
+                "prenom": "leo",
                 "salaire": "0001600.00",
                 "date": "2026-10-27"
             }
@@ -38,13 +41,8 @@ class DeclarationCNPS:
         self.employees = donnees
         return donnees
     
-    # Module 2 : Génération du fichier de déclaration
-    def generer_fichier(self, chemin_fichier="declaration_cnps.txt"):
-        """
-        Génère le fichier texte de déclaration mensuelle CNPS
+    )
         
-        :param chemin_fichier: chemin du fichier à créer
-        """
         if not self.employees:
             raise ValueError("Aucune donnée d'employé. Appelez d'abord lire_donnees()")
         
@@ -64,9 +62,4 @@ class DeclarationCNPS:
                     f.write(ligne)
                 
                 # Fin de fichier
-                f.write("FIN_DECLARATION\n")
-            
-            print(f"✅ Fichier créé avec succès : {chemin_fichier}")
-            return True
-        except IOError as e:
-            raise IOError(f"Erreur lors de la création du fichier : {str(e)}")
+                f.write("FIN_DECLARATION\n") 
