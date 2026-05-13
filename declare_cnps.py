@@ -1,10 +1,13 @@
-from declaration_cnps import DeclarationCNPS   # ← "declaration_cnps" pas "connexion_cnps"
 
-declaration_cnps = DeclarationCNPS(
-    server   = "MON_SERVEUR",
-    database = "PAIE_CNPS",
-    username = "mon_utilisateur",
-    password = "mon_mot_de_passe"
-)
-
-declaration_cnps.connecter()
+class DeclarationCNPS:
+    def __init__(self, server, database, username, password):
+        self.server = server
+        self.database = database
+        self.username = username
+        self.password = password
+    
+    def connecter(self):
+        print(f"Connexion à {self.server}/{self.database} avec {self.username}")
+    
+    def deconnecter(self):
+        print(f"Déconnexion de {self.server}/{self.database}")
