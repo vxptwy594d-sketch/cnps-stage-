@@ -1,65 +1,78 @@
 
+import pyodbc
+from typing import Any, Optional
 
 
-from platform import java_ver
-
-
-class DeclarationCNPS:
-    def __init__(self):
-        self.employees = []
+def connect_db(
+    server: str,
+    database: str,
+    username: str,
+    password: str,
+    driver: str = "{ODBC Driver 17 for SQL Server}",
+) -> pyodbc.Connection:
     
-    # Module 1 : Lecture des données
-    def lire_donnees(self):
-        """
-        Lit les données des employés nécessaires à la déclaration CNPS
-        Retourne une liste de dictionnaires avec les informations des employés
-        """
-        donnees = [
-            {
-                "numero": "0000000001",
-                "nom": "haniel",
-                "prenom": "tchapmeni",
-                "salaire": "0001500.00",
-                "date": "2026-10-27"
-            },
-            {
-                "numero": "0000000002",
-                "nom": "leonel",
-                "prenom": "leo",
-                "salaire": "0001600.00",
-                "date": "2026-10-27"
-            }
-        ]
-        
-        # Validation des données
-        for emp in donnees:
-            if not emp.get("numero"):
-                raise ValueError("Numéro CNPS manquant")
-            if emp.get("salaire", 0) <= 0:
-                raise ValueError("Salaire invalide")
-        
-        self.employees = donnees
-        return donnees
-    
+    connection_string = (
+        f"DRIVER={driver};"
+        f"SERVER={server};"
+        f"DATABASE={database};"
+        f"UID={username};"
+        f"PWD={password};"
     )
+    return pyodbc.connect(connection_string)
+
+
+class DatabaseManager:
+    def __init__(
+        self,
+        server: str,
+        database: str,
+        username: str,
+        password: str,
         
-        if not self.employees:
-            raise ValueError("Aucune donnée d'employé. Appelez d'abord lire_donnees()")
-        
+    ):
+        self.server = server
+        self.database = database
+        self.username = username
+        self.password = password
+        self.driver = driver
+        self.conn: Optional[pyodbc.Connection] = None
+        self.cursor: Optional[pyodbc.Cursor] = None
+
+    def connect(self) -> pyodbc.Connection:
+        """Ouvre la connexion et crée un curseur."""
+        if self.conn is None:
+            self.conn = connect_db(
+                server=self.server,
+                database=self.database,
+                username=self.username,
+                password=self.password,
+                driver=self.driver,
+            )
+            self.cursor = self.conn.cursor()
+        return self.conn
+
+    def execute_query(self, query: str, params: Optional[tuple] = None) -> Optional[Any]:
+        """Exécute une requête SQL et retourne les résultats."""
+        self.connect()
+        if params:
+            self.cursor.execute(query, params)
+        else:
+            self.cursor.execute(query)
+
         try:
-            with open(chemin_fichier, "w", encoding="utf-8") as f:
-                # En-tête du fichier
-                f.write("DIPE001          CNPS_DECLARATION\n")
-                
-                # Données des employés
-                for emp in self.employees:
-                    ligne = (
-                        f"{emp['numero']}"
-                        f"{emp['nom']:<20}"
-                        f"{emp['prenom']:<20}"
-                        f"{emp['salaire']}{emp['date']}\n"
-                    )
-                    f.write(ligne)
-                
-                # Fin de fichier
-                f.write("FIN_DECLARATION\n") 
+            return self.cursor.fetchall()
+        except pyodbc.ProgrammingError:
+            return None
+
+    def close(self) -> None:
+        """Ferme le curseur et la connexion."""
+        if self.cursor is not None:
+            self.cursor.close()
+            self.cursor = None
+        if self.conn is not None:
+            self.conn.close()
+            self.conn = None
+
+
+if __name__ == "__main__":
+    print("Utilisez connect_db() ou DatabaseManager pour la connexion à la base de données.") 
