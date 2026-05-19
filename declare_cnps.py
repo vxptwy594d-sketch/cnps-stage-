@@ -7,7 +7,7 @@ class DeclarationCNPS:
         self.password = password
     
     def connecter(self):
-        print(f"Connexion à {self.server}/{self.database} avec {self.username}")
+        print(f"Connexion {self.server}/{self.database} avec {self.username}")
     
     def deconnecter(self):
-        print(f"Déconnexion de {self.server}/{self.database}")
+        print(f"Déconnexion {self.server}/{self.database}")
