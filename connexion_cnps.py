@@ -1,34 +1,15 @@
-
 import pyodbc
 from typing import Any, Optional
 
 
-def connect_db(
-    server: str,
-    database: str,
-    username: str,
-    password: str,
-    driver: str = "{ODBC Driver 17 for SQL Server}",
-) -> pyodbc.Connection:
-    
-    connection_string = (
-        f"DRIVER={driver};"
-        f"SERVER={server};"
-        f"DATABASE={database};"
-        f"UID={username};"
-        f"PWD={password};"
-    )
-    return pyodbc.connect(connection_string)
-
-
-class DatabaseManager:
+class Database:
     def __init__(
         self,
         server: str,
         database: str,
         username: str,
         password: str,
-        
+        driver: str = "{ODBC Driver 17 for SQL Server}",
     ):
         self.server = server
         self.database = database
@@ -38,21 +19,23 @@ class DatabaseManager:
         self.conn: Optional[pyodbc.Connection] = None
         self.cursor: Optional[pyodbc.Cursor] = None
 
+    def connect_db(self) -> pyodbc.Connection:
+        connection_string = (
+            f"DRIVER={self.driver};"
+            f"SERVER={self.server};"
+            f"DATABASE={self.database};"
+            f"UID={self.username};"
+            f"PWD={self.password};"
+        )
+        return pyodbc.connect(connection_string)
+
     def connect(self) -> pyodbc.Connection:
-        """Ouvre la connexion et crée un curseur."""
         if self.conn is None:
-            self.conn = connect_db(
-                server=self.server,
-                database=self.database,
-                username=self.username,
-                password=self.password,
-                driver=self.driver,
-            )
+            self.conn = self.connect_db()
             self.cursor = self.conn.cursor()
         return self.conn
 
     def execute_query(self, query: str, params: Optional[tuple] = None) -> Optional[Any]:
-        """Exécute une requête SQL et retourne les résultats."""
         self.connect()
         if params:
             self.cursor.execute(query, params)
@@ -61,11 +44,10 @@ class DatabaseManager:
 
         try:
             return self.cursor.fetchall()
-        except pyodbc.ProgrammingError:
+        except:
             return None
 
     def close(self) -> None:
-        """Ferme le curseur et la connexion."""
         if self.cursor is not None:
             self.cursor.close()
             self.cursor = None
@@ -75,4 +57,4 @@ class DatabaseManager:
 
 
 if __name__ == "__main__":
-    print("Utilisez connect_db() ou DatabaseManager pour la connexion à la base de données.") 
+    print("Utilisez connect_db() ou DatabaseManager pour la connexion à la base de données.")
